@@ -1,0 +1,54 @@
+{
+  "Languages": [
+    {
+      "Name": "ru",
+      "Items": [
+        {
+          "Name": "NotEmptyValidator",
+          "Text": "Поле не может быть пустым"
+        },
+        {
+          "Name": "EmailValidator",
+          "Text": "Введите почту"
+        },
+        {
+          "Name": "LengthValidator",
+          "Text": "Поле должно быть от {MinLength} до {MaxLength} символов, Вы ввели {TotalLength} символов"
+        },
+        {
+          "Name": "RegularExpressionValidator",
+          "Text": "Поле имеет неверный формат"
+        },
+        {
+          "Name": "MinimumLengthValidator",
+          "Text": "Поле должно быть от {MinLength} символов, Вы ввели {TotalLength} символов"
+        }
+      ]
+    },
+    {
+      "Name": "en",
+      "Items": [
+        {
+          "Name": "NotEmptyValidator",
+          "Text": "The field cannot be empty"
+        },
+        {
+          "Name": "EmailValidator",
+          "Text": "The field must be Email"
+        },
+        {
+          "Name": "LengthValidator",
+          "Text": "The field must be between {MinLength} and {MaxLength} characters, you entered {TotalLength} characters"
+        },
+        {
+          "Name": "RegularExpressionValidator",
+          "Text": "The field is not in the correct format"
+        },
+        {
+          "Name": "MinimumLengthValidator",
+          "Text": "The length of the field must be at least {MinLength} characters, you entered {TotalLength} characters"
+        }
+      ]
+    }
+  ]
+}
