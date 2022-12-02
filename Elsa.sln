@@ -11,13 +11,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elsa.API.Application", "Els
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elsa.API.Domain", "Elsa.API.Domain\Elsa.API.Domain.csproj", "{AC93F3D3-0144-4F53-940E-CDC8AD248C02}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elsa.API.Infrastructure", "Elsa.API.Infrastructure.Identity\Elsa.API.Infrastructure.csproj", "{E18C6EBC-8289-4EAA-A3D0-03228484BAF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elsa.API.Infrastructure", "Elsa.API.Infrastructure\Elsa.API.Infrastructure.csproj", "{E18C6EBC-8289-4EAA-A3D0-03228484BAF8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elsa.API.Infrastructure.Shared", "Elsa.API.Infrastructure.Shared\Elsa.API.Infrastructure.Shared.csproj", "{C4A6C0E3-7404-4544-B0DA-7C6E55EA531F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{57656441-9E0F-4A36-A51F-21B3D7CEB0E8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elsa.Core", "Elsa.Core\Elsa.Core.csproj", "{C8B71C61-79DD-4B8E-A011-77932693B548}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elsa.API.Infrastructure.Email", "Elsa.API.Infrastructure.Email\Elsa.API.Infrastructure.Email.csproj", "{3150C533-973B-46C3-A223-51E9280D17FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elsa.API.Infrastructure.Jobs", "Elsa.API.Infrastructure.Jobs\Elsa.API.Infrastructure.Jobs.csproj", "{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +53,14 @@ Global
 		{C8B71C61-79DD-4B8E-A011-77932693B548}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8B71C61-79DD-4B8E-A011-77932693B548}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8B71C61-79DD-4B8E-A011-77932693B548}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3150C533-973B-46C3-A223-51E9280D17FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3150C533-973B-46C3-A223-51E9280D17FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3150C533-973B-46C3-A223-51E9280D17FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3150C533-973B-46C3-A223-51E9280D17FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +72,8 @@ Global
 		{E18C6EBC-8289-4EAA-A3D0-03228484BAF8} = {C624DC28-D41D-4B2A-8FAF-BDAD6C334AA5}
 		{C4A6C0E3-7404-4544-B0DA-7C6E55EA531F} = {C624DC28-D41D-4B2A-8FAF-BDAD6C334AA5}
 		{C8B71C61-79DD-4B8E-A011-77932693B548} = {57656441-9E0F-4A36-A51F-21B3D7CEB0E8}
+		{3150C533-973B-46C3-A223-51E9280D17FB} = {C624DC28-D41D-4B2A-8FAF-BDAD6C334AA5}
+		{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E} = {C624DC28-D41D-4B2A-8FAF-BDAD6C334AA5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {66DD1C57-D2C7-487C-899E-CB6842A995CC}

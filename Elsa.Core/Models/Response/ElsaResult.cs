@@ -49,11 +49,6 @@ public class ElsaResult<TResponse> : ElsaResult
 public class ElsaResult
 {
     /// <summary>
-    /// Статус запроса.
-    /// </summary>
-    public bool Succeeded => Error == null;
-
-    /// <summary>
     /// Ошибка.
     /// </summary>
     public ElsaError Error { get; set; }

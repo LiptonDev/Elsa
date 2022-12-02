@@ -2,6 +2,7 @@ using Elsa.API.Application;
 using Elsa.API.Application.Common.Interfaces;
 using Elsa.API.Extensions;
 using Elsa.API.Infrastructure;
+using Elsa.API.Infrastructure.Email;
 using Elsa.API.Infrastructure.Persistence;
 using Elsa.API.Infrastructure.Shared;
 using Microsoft.AspNetCore.Identity;
@@ -34,11 +35,14 @@ static class Program
 
     static void ConfigureServices(WebApplicationBuilder builder)
     {
-        builder.AddElsaLocalization();
+        builder.AddJsonConfigFiles();
+        builder.Services.AddElsaLocalization();
         builder.Services.ConfigureSettings(builder.Configuration);
-        builder.Services.AddInfrastructureLayer();
         builder.Services.AddApplicationLayer();
+        builder.Services.AddInfrastructureLayer();
         builder.Services.AddSharedInfrastructure();
+        builder.Services.AddEmailInfrastructure();
+        builder.Services.AddQuartzJobs();
         builder.Services.AddControllersWithJson();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerExtension();

@@ -1,7 +1,8 @@
 ﻿using Elsa.API.Application.Common.Interfaces;
 using Elsa.API.Application.Common.Models;
 using Elsa.Core.Enums;
-using Elsa.Core.Models.Account;
+using Elsa.Core.Models.Account.Request;
+using Elsa.Core.Models.Account.Response;
 using Elsa.Core.Models.Response;
 using Microsoft.Extensions.Localization;
 using System.Net;
@@ -35,7 +36,7 @@ class CreateUserCommandHandler : IElsaRequestHandlerWrapper<CreateUserCommand, R
     /// </summary>
     /// <param name="request">Данные для регистрации.</param>
     /// <returns></returns>
-    public async Task<ElsaResult<RegisterResponse>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<ServiceResult<RegisterResponse>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         var res = await accountService.RegisterAsync(request);
         if (res.Succeeded)

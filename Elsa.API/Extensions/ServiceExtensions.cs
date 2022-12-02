@@ -86,7 +86,7 @@ public static class ServiceExtensions
 
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-            x.IncludeXmlComments(xmlPath);
+            x.IncludeXmlComments(xmlPath, true);
         });
     }
 }

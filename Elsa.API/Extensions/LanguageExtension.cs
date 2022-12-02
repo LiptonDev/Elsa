@@ -9,12 +9,19 @@ namespace Elsa.API.Extensions;
 
 public static class LanguageExtension
 {
-    public static void AddElsaLocalization(this WebApplicationBuilder builder)
+    /// <summary>
+    /// Использовать локализацию.
+    /// </summary>
+    /// <param name="services"></param>
+    public static void AddElsaLocalization(this IServiceCollection services)
     {
-        builder.Configuration.AddJsonFile("fvlangs.json", true, false);
-        builder.Services.AddLocalization(o => o.ResourcesPath = "Localization");
+        services.AddLocalization(o => o.ResourcesPath = "Localization");
     }
 
+    /// <summary>
+    /// Добавить локализацию FluentValidation, установить стандартный язык для API (если не указывается заголовок Accept-Language).
+    /// </summary>
+    /// <param name="app"></param>
     public static void AddElsaLocalization(this IApplicationBuilder app)
     {
         var defaultLanguage = app.ApplicationServices.GetService<IOptions<LanguageSettings>>().Value.DefaultLanguage;

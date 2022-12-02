@@ -9,5 +9,5 @@ public interface ITokenGenerator
     /// Генерация токена авторизации.
     /// </summary>
     /// <returns></returns>
-    string GenerateToken();
+    Task<string> GenerateTokenAsync();
 }

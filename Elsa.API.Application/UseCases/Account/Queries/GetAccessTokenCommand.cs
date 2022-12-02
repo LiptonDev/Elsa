@@ -1,7 +1,8 @@
 ﻿using Elsa.API.Application.Common.Interfaces;
 using Elsa.API.Application.Common.Models;
 using Elsa.Core.Enums;
-using Elsa.Core.Models.Account;
+using Elsa.Core.Models.Account.Request;
+using Elsa.Core.Models.Account.Response;
 using Elsa.Core.Models.Response;
 using Microsoft.Extensions.Localization;
 using System.Net;
@@ -35,9 +36,9 @@ class GetAccessTokenCommandHandler : IElsaRequestHandlerWrapper<GetAccessTokenCo
     /// </summary>
     /// <param name="request">Данные для авторизации.</param>
     /// <returns></returns>
-    public async Task<ElsaResult<LoginResponse>> Handle(GetAccessTokenCommand request, CancellationToken cancellationToken)
+    public async Task<ServiceResult<LoginResponse>> Handle(GetAccessTokenCommand request, CancellationToken cancellationToken)
     {
-        var res = await accountService.TryLoginAsync(request);
+        var res = await accountService.TryLoginAsync(request, cancellationToken);
         if (res != null)
         {
             return new ServiceResult<LoginResponse>(res);

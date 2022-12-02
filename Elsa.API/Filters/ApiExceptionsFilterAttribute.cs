@@ -32,6 +32,7 @@ class ApiExceptionsFilterAttribute : ExceptionFilterAttribute
         {
             { typeof(ElsaValidationException), HandleValidationException },
             { typeof(ElsaNotFoundExceptions), HandleNotFoundException },
+            { typeof(ElsaApiException), HandleApiException }
         };
 
         this.localizer = localizer;
@@ -75,6 +76,23 @@ class ApiExceptionsFilterAttribute : ExceptionFilterAttribute
         {
             StatusCode = StatusCodes.Status500InternalServerError
         };
+
+        context.ExceptionHandled = true;
+    }
+
+    /// <summary>
+    /// Обработка ошибки API.
+    /// </summary>
+    private void HandleApiException(ExceptionContext context)
+    {
+        if (context.Exception is ElsaApiException ex)
+        {
+            var details = new ElsaResult(new ElsaError(ex.Message, ex.ErrorCode));
+            context.Result = new ObjectResult(details)
+            {
+                StatusCode = (int)ex.StatusCode
+            };
+        }
 
         context.ExceptionHandled = true;
     }

@@ -8,19 +8,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Extended" Version="1.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Elsa.API.Application\Elsa.API.Application.csproj" />
-    <ProjectReference Include="..\Elsa.API.Infrastructure.Identity\Elsa.API.Infrastructure.csproj" />
+    <ProjectReference Include="..\Elsa.API.Infrastructure.Email\Elsa.API.Infrastructure.Email.csproj" />
+    <ProjectReference Include="..\Elsa.API.Infrastructure.Jobs\Elsa.API.Infrastructure.Jobs.csproj" />
     <ProjectReference Include="..\Elsa.API.Infrastructure.Shared\Elsa.API.Infrastructure.Shared.csproj" />
+    <ProjectReference Include="..\Elsa.API.Infrastructure\Elsa.API.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
