@@ -5,18 +5,8 @@ namespace Elsa.Core.Models.Account.Response;
 /// <summary>
 /// Ответ об изменении пароля.
 /// </summary>
-public class ResetPasswordResponse
+public class ResetPasswordResponse : SucceededResponse
 {
-    /// <summary>
-    /// Результат сброса пароля.
-    /// </summary>
-    public bool Succeeded { get; set; }
-
-    /// <summary>
-    /// Сообщение от API.
-    /// </summary>
-    public string Message { get; set; }
-
     /// <summary>
     /// Ошибки.
     /// </summary>

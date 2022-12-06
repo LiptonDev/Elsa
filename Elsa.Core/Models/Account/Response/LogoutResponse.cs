@@ -8,5 +8,5 @@ public class LogoutResponse
     /// <summary>
     /// Количество удаленных токенов.
     /// </summary>
-    public int Count { get; set; }
+    public required int Count { get; set; }
 }

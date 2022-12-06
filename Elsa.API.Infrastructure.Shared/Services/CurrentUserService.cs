@@ -1,4 +1,5 @@
-﻿using Elsa.API.Application.Common.Interfaces;
+﻿using Elsa.API.Application;
+using Elsa.API.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -17,7 +18,11 @@ public class CurrentUserService : ICurrentUserService
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    public string[]? Roles => httpContextAccessor.HttpContext?.User?.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToArray();
+    public string[]? Roles => httpContextAccessor.HttpContext?.User?.Claims.Where(x => x.Type == ClaimTypes.Role)
+                                                                           .Select(x => x.Value)
+                                                                           .ToArray();
 
     public string? UserId => httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    public string? Token => httpContextAccessor.HttpContext.Request.Headers[ElsaSchemeConsts.SchemeBearer];
 }

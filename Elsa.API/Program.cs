@@ -1,5 +1,5 @@
 using Elsa.API.Application;
-using Elsa.API.Application.Common.Interfaces;
+using Elsa.API.Domain.Settings;
 using Elsa.API.Extensions;
 using Elsa.API.Infrastructure;
 using Elsa.API.Infrastructure.Email;
@@ -7,8 +7,9 @@ using Elsa.API.Infrastructure.Persistence;
 using Elsa.API.Infrastructure.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
-static class Program
+class Program
 {
     public static async Task Main(string[] args)
     {
@@ -25,9 +26,9 @@ static class Program
 
             var userManager = services.ServiceProvider.GetRequiredService<UserManager<ElsaUser>>();
             var roleManager = services.ServiceProvider.GetRequiredService<RoleManager<ElsaRole>>();
-            var generator = services.ServiceProvider.GetRequiredService<ITokenGenerator>();
+            var user = services.ServiceProvider.GetRequiredService<IOptions<DefaultAdminUser>>();
 
-            await ElsaDbContextSeed.SeedDefaultUserAsync(userManager, roleManager, generator);
+            await ElsaDbContextSeed.SeedDefaultUserAsync(userManager, roleManager, user.Value);
         }
 
         ConfigureApp(app);
@@ -35,6 +36,7 @@ static class Program
 
     static void ConfigureServices(WebApplicationBuilder builder)
     {
+        builder.AddSerilog();
         builder.AddJsonConfigFiles();
         builder.Services.AddElsaLocalization();
         builder.Services.ConfigureSettings(builder.Configuration);
@@ -46,6 +48,8 @@ static class Program
         builder.Services.AddControllersWithJson();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerExtension();
+        builder.Services.AddRedisCache(builder.Configuration);
+        builder.Services.AddSignalrLayer();
     }
 
     static void ConfigureApp(WebApplication app)
@@ -55,6 +59,8 @@ static class Program
         app.UseAuth();
         app.AddElsaLocalization();
         app.MapControllers();
+        app.MapHubs();
+
         app.Run();
     }
 }

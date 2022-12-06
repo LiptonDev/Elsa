@@ -8,7 +8,7 @@ namespace Elsa.API.Application.Common.Interfaces;
 public interface IUnitOfWork<TId> : IDisposable
 {
     /// <summary>
-    /// Репозиторий.
+    /// Получить репозиторий.
     /// </summary>
     /// <returns></returns>
     IAsyncRepository<T, TId> Repository<T>() where T : Entity<TId>;
@@ -18,10 +18,4 @@ public interface IUnitOfWork<TId> : IDisposable
     /// </summary>
     /// <returns></returns>
     Task<int> Commit(CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Откатить изменения.
-    /// </summary>
-    /// <returns></returns>
-    Task Rollback();
 }

@@ -20,35 +20,39 @@ public class AsyncRepository<T, TId> : IAsyncRepository<T, TId> where T : Entity
         this.DbContext = dbContext;
     }
 
-    public virtual IQueryable<T> Entities => Set;
+    public IQueryable<T> Entities(bool tracking)
+    {
+        if (tracking) return Set;
+        else return Set.AsNoTracking();
+    }
 
-    public virtual async Task<T> AddAsync(T entity, CancellationToken cancellationToken)
+    public async Task<T> AddAsync(T entity, CancellationToken cancellationToken)
     {
         await Set.AddAsync(entity, cancellationToken);
         return entity;
     }
 
-    public virtual void Delete(T entity)
+    public void Delete(T entity)
     {
         Set.Remove(entity);
     }
 
-    public virtual void DeleteRange(IEnumerable<T> entities)
+    public void DeleteRange(IEnumerable<T> entities)
     {
         Set.RemoveRange(entities);
     }
 
-    public virtual Task<List<T>> GetAllAsync()
+    public Task<List<T>> GetAllAsync()
     {
         return Set.ToListAsync();
     }
 
-    public virtual async Task<T> GetByIdAsync(TId id)
+    public async Task<T?> GetByIdAsync(TId id)
     {
         return await Set.FindAsync(id);
     }
 
-    public virtual Task UpdateAsync(T entity)
+    public Task UpdateAsync(T entity)
     {
         Set.Update(entity);
         return Task.CompletedTask;
@@ -56,7 +60,7 @@ public class AsyncRepository<T, TId> : IAsyncRepository<T, TId> where T : Entity
         //dbContext.Entry(exist).CurrentValues.SetValues(entity);
     }
 
-    public virtual Task UpdateRangeAsync(IEnumerable<T> entities)
+    public Task UpdateRangeAsync(IEnumerable<T> entities)
     {
         Set.UpdateRange(entities);
         return Task.CompletedTask;

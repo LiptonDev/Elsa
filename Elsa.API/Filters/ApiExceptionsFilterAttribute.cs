@@ -1,6 +1,5 @@
 ﻿using Elsa.API.Application.Common.Exceptions;
 using Elsa.Core.Enums;
-using Elsa.Core.Models.Errors;
 using Elsa.Core.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -30,8 +29,6 @@ class ApiExceptionsFilterAttribute : ExceptionFilterAttribute
     {
         handlers = new Dictionary<Type, Action<ExceptionContext>>
         {
-            { typeof(ElsaValidationException), HandleValidationException },
-            { typeof(ElsaNotFoundExceptions), HandleNotFoundException },
             { typeof(ElsaApiException), HandleApiException }
         };
 
@@ -70,8 +67,11 @@ class ApiExceptionsFilterAttribute : ExceptionFilterAttribute
     /// </summary>
     private void HandleUnknownException(ExceptionContext context)
     {
-        var details = new ElsaResult(new ElsaError(localizer[ElsaExceptions.UnhandledException], ErrorCode.Unhandled));
-
+#if DEBUG
+        var details = new ElsaResult<object>(new ElsaError(context.Exception.Message, ErrorCode.Unhandled));
+#else
+        var details = new ElsaResult<object>(new ElsaError(localizer[ElsaExceptions.UnhandledException], ErrorCode.Unhandled));
+#endif
         context.Result = new ObjectResult(details)
         {
             StatusCode = StatusCodes.Status500InternalServerError
@@ -87,40 +87,11 @@ class ApiExceptionsFilterAttribute : ExceptionFilterAttribute
     {
         if (context.Exception is ElsaApiException ex)
         {
-            var details = new ElsaResult(new ElsaError(ex.Message, ex.ErrorCode));
+            var details = new ElsaResult<object>(new ElsaError(ex.Message, ex.ErrorCode));
             context.Result = new ObjectResult(details)
             {
                 StatusCode = (int)ex.StatusCode
             };
-        }
-
-        context.ExceptionHandled = true;
-    }
-
-    /// <summary>
-    /// Обработка ошибки поиска.
-    /// </summary>
-    private void HandleNotFoundException(ExceptionContext context)
-    {
-        if (context.Exception is ElsaNotFoundExceptions ex)
-        {
-            var msg = string.Format(localizer[ElsaExceptions.NotFoundException], ex.Key);
-            var details = new ElsaResult(new ElsaError(msg, ErrorCode.ValueNotFound));
-            context.Result = new NotFoundObjectResult(details);
-        }
-
-        context.ExceptionHandled = true;
-    }
-
-    /// <summary>
-    /// Обработка ошибки валидации.
-    /// </summary>
-    private void HandleValidationException(ExceptionContext context)
-    {
-        if (context.Exception is ElsaValidationException ex)
-        {
-            var details = new ElsaResult(new ElsaError(localizer[ElsaExceptions.ValidationException], ErrorCode.Validation, new ElsaValidationErrors(ex.Errors)));
-            context.Result = new BadRequestObjectResult(details);
         }
 
         context.ExceptionHandled = true;

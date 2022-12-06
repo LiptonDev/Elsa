@@ -10,5 +10,5 @@ public class LogoutRequest
     /// <summary>
     /// Тип удаления токена.
     /// </summary>
-    public RemoveTokenType RemoveType { get; set; }
+    public required RemoveTokenType RemoveType { get; set; }
 }

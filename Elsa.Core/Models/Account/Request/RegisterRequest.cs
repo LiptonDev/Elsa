@@ -8,25 +8,25 @@ public class RegisterRequest
     /// <summary>
     /// Имя.
     /// </summary>
-    public string FirstName { get; set; }
+    public required string FirstName { get; set; }
 
     /// <summary>
     /// Фамилия.
     /// </summary>
-    public string LastName { get; set; }
+    public required string LastName { get; set; }
 
     /// <summary>
     /// Почта.
     /// </summary>
-    public string Email { get; set; }
+    public required string Email { get; set; }
 
     /// <summary>
     /// Пароль.
     /// </summary>
-    public string Password { get; set; }
+    public required string Password { get; set; }
 
     /// <summary>
     /// Подтверждение пароля.
     /// </summary>
-    public string ConfirmPassword { get; set; }
+    public required string ConfirmPassword { get; set; }
 }

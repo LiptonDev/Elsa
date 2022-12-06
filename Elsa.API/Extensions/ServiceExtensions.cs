@@ -13,7 +13,7 @@ namespace Elsa.API.Extensions;
 
 public static class ServiceExtensions
 {
-    static readonly ServiceResult modelInvalid = new(new ElsaError("invalid request", ErrorCode.Validation));
+    static readonly ServiceResult<object> modelInvalid = new(new ElsaError("invalid request", ErrorCode.Validation));
     /// <summary>
     /// Controllers.
     /// </summary>

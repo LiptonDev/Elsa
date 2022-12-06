@@ -21,7 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elsa.Core", "Elsa.Core\Elsa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elsa.API.Infrastructure.Email", "Elsa.API.Infrastructure.Email\Elsa.API.Infrastructure.Email.csproj", "{3150C533-973B-46C3-A223-51E9280D17FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elsa.API.Infrastructure.Jobs", "Elsa.API.Infrastructure.Jobs\Elsa.API.Infrastructure.Jobs.csproj", "{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elsa.API.Infrastructure.Jobs", "Elsa.API.Infrastructure.Jobs\Elsa.API.Infrastructure.Jobs.csproj", "{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{42F03EB1-3847-414C-9D27-F74C050EC29C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elsa.Client.Console", "Elsa.Client.Console\Elsa.Client.Console.csproj", "{1EC39979-4327-46A0-8E59-2E146286CA3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +65,10 @@ Global
 		{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EC39979-4327-46A0-8E59-2E146286CA3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EC39979-4327-46A0-8E59-2E146286CA3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EC39979-4327-46A0-8E59-2E146286CA3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EC39979-4327-46A0-8E59-2E146286CA3C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +82,7 @@ Global
 		{C8B71C61-79DD-4B8E-A011-77932693B548} = {57656441-9E0F-4A36-A51F-21B3D7CEB0E8}
 		{3150C533-973B-46C3-A223-51E9280D17FB} = {C624DC28-D41D-4B2A-8FAF-BDAD6C334AA5}
 		{D14726C4-2982-40E9-8A2E-F1A6F4C48B4E} = {C624DC28-D41D-4B2A-8FAF-BDAD6C334AA5}
+		{1EC39979-4327-46A0-8E59-2E146286CA3C} = {42F03EB1-3847-414C-9D27-F74C050EC29C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {66DD1C57-D2C7-487C-899E-CB6842A995CC}

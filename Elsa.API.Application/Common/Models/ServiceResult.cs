@@ -7,7 +7,7 @@ namespace Elsa.API.Application.Common.Models;
 /// <summary>
 /// Указывает, что ответ содержит в себе статус запроса.
 /// </summary>
-public interface IStatus
+public interface IServiceResult : IElsaResult
 {
     /// <summary>
     /// Status code.
@@ -16,7 +16,7 @@ public interface IStatus
 }
 
 /// <inheritdoc cref="ElsaResult{TResponse}"/>
-public class ServiceResult<TResponse> : ElsaResult<TResponse>, IStatus
+public class ServiceResult<TResponse> : ElsaResult<TResponse>, IServiceResult
 {
     /// <summary>
     /// Status code.
@@ -35,9 +35,8 @@ public class ServiceResult<TResponse> : ElsaResult<TResponse>, IStatus
     /// <summary>
     /// Конструктор.
     /// </summary>
-    public ServiceResult(TResponse data, ElsaError error, HttpStatusCode statusCode = HttpStatusCode.OK) : base(error)
+    public ServiceResult(TResponse data, ElsaError error, HttpStatusCode statusCode = HttpStatusCode.OK) : base(data, error)
     {
-        Data = data;
         StatusCode = statusCode;
     }
 
@@ -53,15 +52,12 @@ public class ServiceResult<TResponse> : ElsaResult<TResponse>, IStatus
     /// <summary>
     /// Конструктор.
     /// </summary>
-    public ServiceResult(HttpStatusCode statusCode = HttpStatusCode.OK)
+    /// <param name="error"></param>
+    public ServiceResult(ElsaError error) : base(error)
     {
-        StatusCode = statusCode;
-    }
-}
 
-/// <inheritdoc cref="ElsaResult"/>
-public class ServiceResult : ElsaResult, IStatus
-{
+    }
+
     /// <summary>
     /// Конструктор.
     /// </summary>
@@ -73,14 +69,8 @@ public class ServiceResult : ElsaResult, IStatus
     /// <summary>
     /// Конструктор.
     /// </summary>
-    public ServiceResult(ElsaError error, HttpStatusCode statusCode = HttpStatusCode.OK) : base(error)
+    public ServiceResult()
     {
-        StatusCode = statusCode;
-    }
 
-    /// <summary>
-    /// Status code.
-    /// </summary>
-    [JsonIgnore]
-    public HttpStatusCode StatusCode { get; }
+    }
 }

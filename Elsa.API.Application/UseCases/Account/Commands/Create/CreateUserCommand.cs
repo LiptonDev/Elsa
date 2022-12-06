@@ -41,7 +41,7 @@ class CreateUserCommandHandler : IElsaRequestHandlerWrapper<CreateUserCommand, R
         var res = await accountService.RegisterAsync(request);
         if (res.Succeeded)
         {
-            return new ServiceResult<RegisterResponse>(res);
+            return new ServiceResult<RegisterResponse>(res, HttpStatusCode.Created);
         }
         else
         {

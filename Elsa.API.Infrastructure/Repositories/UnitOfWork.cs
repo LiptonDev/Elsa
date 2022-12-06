@@ -9,7 +9,7 @@ namespace Elsa.API.Infrastructure.Repositories;
 public class UnitOfWork<TId> : IUnitOfWork<TId>
 {
     private bool disposed;
-    private Hashtable repositories;
+    private readonly Hashtable repositories;
     private readonly ElsaDbContext dbContext;
 
     /// <summary>
@@ -18,13 +18,11 @@ public class UnitOfWork<TId> : IUnitOfWork<TId>
     public UnitOfWork(ElsaDbContext dbContext)
     {
         this.dbContext = dbContext;
+        repositories = new Hashtable();
     }
 
     public IAsyncRepository<TEntity, TId> Repository<TEntity>() where TEntity : Entity<TId>
     {
-        if (repositories == null)
-            repositories = new Hashtable();
-
         var type = typeof(TEntity).Name;
 
         if (!repositories.ContainsKey(type))
@@ -48,11 +46,6 @@ public class UnitOfWork<TId> : IUnitOfWork<TId>
     {
         Dispose(true);
         GC.SuppressFinalize(this);
-    }
-
-    public Task Rollback()
-    {
-        throw new NotImplementedException();
     }
 
     protected virtual void Dispose(bool disposing)

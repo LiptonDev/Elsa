@@ -5,11 +5,12 @@ using MailKit.Net.Smtp;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using System.Text.RegularExpressions;
 
 namespace Elsa.API.Infrastructure.Shared.Services;
 
 /// <inheritdoc cref="IEmailSenderService"/>
-public class EmailSenderService : IEmailSenderService
+public partial class EmailSenderService : IEmailSenderService
 {
     private readonly MailSettings settings;
     private readonly SmtpClient client;
@@ -25,7 +26,7 @@ public class EmailSenderService : IEmailSenderService
         this.logger = logger;
     }
 
-    public async Task<bool> SendAsync(EmailEntity emailRequest)
+    public async Task<SmtpStatusCode?> SendAsync(EmailEntity emailRequest, CancellationToken cancellationToken)
     {
         var email = new MimeMessage
         {
@@ -39,26 +40,34 @@ public class EmailSenderService : IEmailSenderService
         {
             HtmlBody = emailRequest.Body
         };
+
         email.Body = builder.ToMessageBody();
         try
         {
-            var ans = await client.SendAsync(email);
-            logger.LogInformation($"Answer from smtp: {ans}");
-            return true;
+            var ans = await client.SendAsync(email, cancellationToken);
+            return SmtpStatusCode.Ok;
+        }
+        catch (SmtpCommandException ex)
+        {
+            if (ex.StatusCode != SmtpStatusCode.SyntaxError)//syntax error не интересен
+            {
+                logger.LogWarning("Send mail error: status_code: {status}, code: {code}, text: {text}", ex.StatusCode, ex.ErrorCode, ex.Message);
+            }
+            return ex.StatusCode;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Sending email error");
-            return false;
+            return null;
         }
     }
 
-    public async Task<bool> StartAsync()
+    public async Task<bool> StartAsync(CancellationToken cancellationToken)
     {
         try
         {
-            await client.ConnectAsync(settings.SmtpHost, settings.SmtpPort);
-            await client.AuthenticateAsync(settings.SmtpUser, settings.SmtpPass);
+            await client.ConnectAsync(settings.SmtpHost, settings.SmtpPort, settings.UseSsl, cancellationToken);
+            await client.AuthenticateAsync(settings.SmtpUser, settings.SmtpPass, cancellationToken);
             return true;
         }
         catch (Exception ex)
@@ -68,11 +77,11 @@ public class EmailSenderService : IEmailSenderService
         }
     }
 
-    public async Task<bool> StopAsync()
+    public async Task<bool> StopAsync(CancellationToken cancellationToken)
     {
         try
         {
-            await client.DisconnectAsync(true);
+            await client.DisconnectAsync(true, cancellationToken);
             return true;
         }
         catch (Exception ex)

@@ -1,4 +1,5 @@
 ﻿using Elsa.API.Domain.Entities;
+using MailKit.Net.Smtp;
 
 namespace Elsa.API.Application.Common.Interfaces;
 
@@ -12,19 +13,19 @@ public interface IEmailSenderService
     /// </summary>
     /// <param name="emaiRequest">Данные для отправки письма.</param>
     /// <returns>
-    /// <see langword="true"/> - письмо отправлено.
+    /// <see langword="null"/> - необработанная ошибка.
     /// </returns>
-    Task<bool> SendAsync(EmailEntity emaiRequest);
+    Task<SmtpStatusCode?> SendAsync(EmailEntity emaiRequest, CancellationToken cancellationToken);
 
     /// <summary>
     /// Открыть подключение к SMTP.
     /// </summary>
     /// <returns></returns>
-    Task<bool> StartAsync();
+    Task<bool> StartAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Закрыть подключение к SMTP.
     /// </summary>
     /// <returns></returns>
-    Task<bool> StopAsync();
+    Task<bool> StopAsync(CancellationToken cancellationToken);
 }

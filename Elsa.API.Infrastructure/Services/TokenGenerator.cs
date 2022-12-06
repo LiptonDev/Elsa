@@ -8,24 +8,24 @@ namespace Elsa.API.Infrastructure.Shared.Services;
 public class TokenGenerator : ITokenGenerator
 {
     private readonly IRandomStringGenerator stringGenerator;
-    private readonly IUnitOfWork<int> unitOfWork;
+    private readonly IAsyncRepository<ElsaApiKey, int> repository;
 
     /// <summary>
     /// Конструктор.
     /// </summary>
-    public TokenGenerator(IRandomStringGenerator stringGenerator, IUnitOfWork<int> unitOfWork)
+    public TokenGenerator(IRandomStringGenerator stringGenerator, IAsyncRepository<ElsaApiKey, int> repository)
     {
         this.stringGenerator = stringGenerator;
-        this.unitOfWork = unitOfWork;
+        this.repository = repository;
     }
 
-    public async Task<string> GenerateTokenAsync()
+    public async Task<string> GenerateTokenAsync(CancellationToken cancellationToken)
     {
         var token = $"{ElsaSchemeConsts.TokenStart}{stringGenerator.Generate(128)}";
-        var contains = await unitOfWork.Repository<ElsaApiKey>().Entities.AnyAsync(x => x.Key == token);
+        var contains = await repository.Entities().AnyAsync(x => x.Key == token, cancellationToken);
         if (contains)
         {
-            return await GenerateTokenAsync();
+            return await GenerateTokenAsync(cancellationToken);
         }
         else
         {

@@ -20,8 +20,8 @@ namespace Elsa.API.Infrastructure;
 public static class ServiceExtensions
 {
     readonly static JsonSerializerOptions jsonoptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
-    readonly static ElsaResult forbidden = new(new ElsaError("Forbidden", ErrorCode.Unauthorized));
-    readonly static ElsaResult unauthorized = new(new ElsaError("Unauthorized", ErrorCode.Unauthorized));
+    readonly static ElsaResult<object> forbidden = new(new ElsaError("Forbidden", ErrorCode.Unauthorized));
+    readonly static ElsaResult<object> unauthorized = new(new ElsaError("Unauthorized", ErrorCode.Unauthorized));
 
     /// <summary>
     /// Добавить инфраструктурный слой.

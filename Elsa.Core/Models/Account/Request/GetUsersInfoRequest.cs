@@ -8,5 +8,5 @@ public class GetUsersInfoRequest
     /// <summary>
     /// Id'ы пользователей.
     /// </summary>
-    public string[] UserIds { get; set; }
+    public required string[] UserIds { get; set; }
 }

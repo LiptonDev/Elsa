@@ -1,6 +1,6 @@
 ﻿using Elsa.API.Application.UseCases.Account.Commands.Create;
-using Elsa.API.Application.UseCases.Account.Queries;
-using Elsa.Core.Enums;
+using Elsa.API.Application.UseCases.Account.Commands.Delete;
+using Elsa.API.Application.UseCases.Account.Queries.GetToken;
 using Elsa.Core.Models.Account.Request;
 using Elsa.Core.Models.Account.Response;
 
@@ -34,8 +34,9 @@ public interface IAccountService
     /// Получить информацию о пользователях.
     /// </summary>
     /// <param name="userIds">Id'ы пользователей.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns></returns>
-    Task<List<GetMeResponse>> GetUsersInfoAsync(string[] userIds);
+    Task<List<GetMeResponse>> GetUsersInfoAsync(string[] userIds, CancellationToken cancellationToken);
 
     /// <summary>
     /// Регистрация пользователя.
@@ -59,16 +60,15 @@ public interface IAccountService
     /// Проверяет, используется ли заданная почта у какого-то аккаунта.
     /// </summary>
     /// <param name="email">Почта.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns><see cref="bool">true</see> если почта используется.</returns>
-    Task<bool> CheckEmailAsync(string email);
+    Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken);
 
     /// <summary>
     /// Удалить токен(ы) авторизации.
     /// </summary>
-    /// <param name="userId">Id пользователя, у которого будет удален(ы) токен(ы).</param>
-    /// <param name="currentToken">Текущий токен (не передается при удалении всех токенов)</param>
-    /// <param name="removeType">Тип удаления токена.</param>
+    /// <param name="request">Данные для удаления токен(а/ов).</param>
     /// <param name="cancellationToken">Токен отмены задания.</param>
     /// <returns>Количество удаленных токенов.</returns>
-    Task<int> RemoveTokenAsync(string userId, string? currentToken, RemoveTokenType removeType, CancellationToken cancellationToken);
+    Task<string[]> RemoveTokenAsync(LogoutCommand request, CancellationToken cancellationToken);
 }

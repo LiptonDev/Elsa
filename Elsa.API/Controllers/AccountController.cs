@@ -3,8 +3,12 @@ using Elsa.API.Application;
 using Elsa.API.Application.Common.Interfaces;
 using Elsa.API.Application.Common.Models;
 using Elsa.API.Application.UseCases.Account.Commands.Create;
+using Elsa.API.Application.UseCases.Account.Commands.Delete;
 using Elsa.API.Application.UseCases.Account.Commands.Update;
-using Elsa.API.Application.UseCases.Account.Queries;
+using Elsa.API.Application.UseCases.Account.Queries.GetPasswordResetToken;
+using Elsa.API.Application.UseCases.Account.Queries.GetToken;
+using Elsa.API.Application.UseCases.Account.Queries.GetUsersInfo;
+using Elsa.Core.Enums;
 using Elsa.Core.Models.Account.Request;
 using Elsa.Core.Models.Account.Response;
 using Microsoft.AspNetCore.Authorization;
@@ -53,12 +57,10 @@ public class AccountController : BaseController
     /// </summary>
     /// <returns></returns>
     [HttpPost(nameof(GetResetPasswordToken))]
-    public async Task<ServiceResult<ResetPasswordGetTokenResponse>> GetResetPasswordToken([FromServices] IAccountService accountService,
-                                                                                          [FromBody] ResetPasswordGetTokenRequest request,
-                                                                                          CancellationToken cancellationToken)
+    public Task<ServiceResult<ResetPasswordGetTokenResponse>> GetResetPasswordToken([FromBody] GetResetPasswordTokenCommand request,
+                                                                                    CancellationToken cancellationToken)
     {
-        var res = await accountService.SendResetPasswordTokenAsync(request.Email, cancellationToken);
-        return new ServiceResult<ResetPasswordGetTokenResponse>(res);
+        return Mediator.Send(request, cancellationToken);
     }
 
     /// <summary>
@@ -67,11 +69,10 @@ public class AccountController : BaseController
     /// <returns></returns>
     [Authorize(Roles = "Admin")]
     [HttpGet(nameof(GetUsersInfo))]
-    public async Task<ServiceResult<List<GetMeResponse>>> GetUsersInfo([FromServices] IAccountService accountService,
-                                                                       [FromBody] GetUsersInfoRequest request)
+    public Task<ServiceResult<List<GetMeResponse>>> GetUsersInfo([FromBody] GetUsersInfoCommand request,
+                                                                 CancellationToken cancellationToken)
     {
-        var res = await accountService.GetUsersInfoAsync(request.UserIds);
-        return new ServiceResult<List<GetMeResponse>>(res);
+        return Mediator.Send(request, cancellationToken);
     }
 
     /// <summary>
@@ -81,9 +82,10 @@ public class AccountController : BaseController
     [Authorize]
     [HttpGet(nameof(GetMe))]
     public async Task<ServiceResult<GetMeResponse>> GetMe([FromServices] ICurrentUserService currentUser,
-                                                          [FromServices] IAccountService accountService)
+                                                          [FromServices] IAccountService accountService,
+                                                          CancellationToken cancellationToken)
     {
-        var res = await accountService.GetUsersInfoAsync(new[] { currentUser.UserId });
+        var res = await accountService.GetUsersInfoAsync(new[] { currentUser.UserId! }, cancellationToken);
         return new ServiceResult<GetMeResponse>(res.FirstOrDefault());
     }
 
@@ -95,24 +97,41 @@ public class AccountController : BaseController
     [HttpGet(nameof(GetRoles))]
     public Task<ServiceResult<string[]>> GetRoles([FromServices] ICurrentUserService currentUser)
     {
-        return Task.FromResult(new ServiceResult<string[]>(currentUser.Roles));
+        return Task.FromResult(new ServiceResult<string[]>(currentUser.Roles!));
+    }
+
+    /// <summary>
+    /// Удалить токен(ы) пользователя.
+    /// </summary>
+    /// <param name="request">Данные для удаления токенов.</param>
+    /// <returns></returns>
+    [Authorize(Roles = nameof(Roles.Admin))]
+    [HttpDelete(nameof(DeleteUserTokens))]
+    public Task<ServiceResult<LogoutResponse>> DeleteUserTokens([FromServices] IMapper mapper,
+                                                                [FromBody] DeleteUserTokensRequest request,
+                                                                CancellationToken cancellationToken)
+    {
+        var map = mapper.Map<LogoutCommand>(request);
+        return Mediator.Send(map, cancellationToken);
     }
 
     /// <summary>
     /// Выход из системы (удаление токен(а/ов)).
     /// </summary>
-    /// <param name="removeTokenType">Тип удаления токен(а/ов).</param>
+    /// <param name="request">Тип удаления токен(а/ов).</param>
     /// <returns></returns>
     [Authorize]
     [HttpDelete(nameof(Logout))]
-    public async Task<ServiceResult<LogoutResponse>> Logout([FromServices] ICurrentUserService currentUser,
-                                                            [FromServices] IAccountService accountService,
-                                                            [FromBody] LogoutRequest removeTokenType,
-                                                            CancellationToken cancellationToken)
+    public Task<ServiceResult<LogoutResponse>> Logout([FromServices] ICurrentUserService currentUser,
+                                                      [FromServices] IMapper mapper,
+                                                      [FromBody] LogoutRequest request,
+                                                      CancellationToken cancellationToken)
     {
         var token = base.ControllerContext.HttpContext.Request.Headers[ElsaSchemeConsts.SchemeBearer];
-        var res = await accountService.RemoveTokenAsync(currentUser.UserId, token, removeTokenType.RemoveType, cancellationToken);
-        return new ServiceResult<LogoutResponse>(new LogoutResponse { Count = res });
+        var map = mapper.Map<LogoutCommand>(request);
+        map.Token = token!;
+        map.UserId = currentUser.UserId!;
+        return Mediator.Send(map, cancellationToken);
     }
 
     /// <summary>

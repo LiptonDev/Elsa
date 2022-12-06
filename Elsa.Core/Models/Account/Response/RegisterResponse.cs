@@ -5,13 +5,8 @@ namespace Elsa.Core.Models.Account.Response;
 /// <summary>
 /// Результат регистрации.
 /// </summary>
-public class RegisterResponse
+public class RegisterResponse : SucceededResponse
 {
-    /// <summary>
-    /// Результат регистрации.
-    /// </summary>
-    public bool Succeeded { get; set; }
-
     /// <summary>
     /// Ошибки регистрации.
     /// </summary>

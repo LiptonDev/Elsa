@@ -8,20 +8,20 @@ public class ResetPasswordRequest
     /// <summary>
     /// Почта.
     /// </summary>
-    public string Email { get; set; }
+    public required string Email { get; set; }
 
     /// <summary>
     /// Токен обнолвения пароля.
     /// </summary>
-    public string ResetToken { get; set; }
+    public required string ResetToken { get; set; }
 
     /// <summary>
     /// Новый пароль.
     /// </summary>
-    public string NewPassword { get; set; }
+    public required string NewPassword { get; set; }
 
     /// <summary>
     /// Подтверждение пароля.
     /// </summary>
-    public string ConfirmPassword { get; set; }
+    public required string ConfirmPassword { get; set; }
 }

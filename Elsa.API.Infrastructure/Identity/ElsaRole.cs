@@ -10,10 +10,9 @@ public class ElsaRole : IdentityRole
     /// <summary>
     /// Конструктор.
     /// </summary>
-    public ElsaRole(string roleName, string description) : base(roleName)
+    public ElsaRole(string roleName) : base(roleName)
     {
         UserRoles = new HashSet<ElsaUserRole>();
-        Description = description;
     }
 
     /// <summary>
@@ -28,9 +27,4 @@ public class ElsaRole : IdentityRole
     /// Пользователи с ролью.
     /// </summary>
     public ICollection<ElsaUserRole> UserRoles { get; set; }
-
-    /// <summary>
-    /// Описание роли.
-    /// </summary>
-    public string Description { get; set; }
 }

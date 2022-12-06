@@ -8,5 +8,5 @@ class ElsaMinUserRole
     /// <summary>
     /// Роль.
     /// </summary>
-    public ElsaMinRole Role { get; set; }
+    public required ElsaMinRole Role { get; set; }
 }

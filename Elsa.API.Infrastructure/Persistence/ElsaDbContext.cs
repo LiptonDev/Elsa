@@ -63,7 +63,7 @@ public class ElsaDbContext : IdentityDbContext<ElsaUser,
 
         var save = await base.SaveChangesAsync(cancellationToken);
 
-        await DispatchEvents();
+        await DispatchEvents(cancellationToken);
 
         return save;
     }
@@ -72,12 +72,12 @@ public class ElsaDbContext : IdentityDbContext<ElsaUser,
     /// Опубликовать изменения сущностей.
     /// </summary>
     /// <returns></returns>
-    private async Task DispatchEvents()
+    private async Task DispatchEvents(CancellationToken cancellationToken)
     {
         foreach (var item in ChangeTracker.Entries<IHasDomainEvents>().Select(x => x.Entity.DomainEvents).SelectMany(x => x).Where(x => !x.IsPublished))
         {
             item.IsPublished = true;
-            await domainService.PublishAsync(item);
+            await domainService.PublishAsync(item, cancellationToken);
         }
     }
 
@@ -89,9 +89,9 @@ public class ElsaDbContext : IdentityDbContext<ElsaUser,
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         builder.Entity<ElsaUserRole>().ToTable("userRoles");
-        builder.Entity<IdentityRoleClaim<string>>().ToTable("roleClaims");
-        builder.Entity<IdentityUserClaim<string>>().ToTable("userClaims");
-        builder.Entity<IdentityUserLogin<string>>().ToTable("userLogins");
-        builder.Entity<IdentityUserToken<string>>().ToTable("userTokens");
+        builder.Ignore<IdentityRoleClaim<string>>();
+        builder.Ignore<IdentityUserClaim<string>>();
+        builder.Ignore<IdentityUserLogin<string>>();
+        builder.Ignore<IdentityUserToken<string>>();
     }
 }

@@ -1,5 +1,4 @@
-﻿using Elsa.API.Infrastructure.Email.Jobs;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 
 namespace Elsa.API.Infrastructure.Email;
@@ -16,18 +15,8 @@ public static class ServicesExtensions
         {
             q.UseMicrosoftDependencyInjectionJobFactory();
 
-            var jobKey = new JobKey("SendEmailJob");
-            q.AddJob<SendEmailJob>(trigger =>
-            {
-                trigger.WithIdentity(jobKey);
-                trigger.WithDescription("Рассылка писем из базы");
-            });
-            q.AddTrigger(x =>
-            {
-                x.ForJob(jobKey);
-                x.WithSimpleSchedule(x => x.WithIntervalInSeconds(15).RepeatForever());
-                x.WithIdentity("SendEmailJob-trigger");
-            });
+            q.AddEmailRemoverJob();
+            q.AddEmailSenderJob();
         });
 
         services.AddQuartzHostedService(x => x.WaitForJobsToComplete = true);

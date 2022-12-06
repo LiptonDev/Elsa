@@ -8,5 +8,5 @@ public class LoginResponse
     /// <summary>
     /// Токен авторизации.
     /// </summary>
-    public string ApiToken { get; set; }
+    public required string ApiToken { get; set; }
 }

@@ -8,10 +8,15 @@ public interface ICurrentUserService
     /// <summary>
     /// Роли пользователя.
     /// </summary>
-    string?[] Roles { get; }
+    string[]? Roles { get; }
 
     /// <summary>
     /// Текущий ID пользователя.
     /// </summary>
     string? UserId { get; }
+
+    /// <summary>
+    /// Текущий токен пользователя.
+    /// </summary>
+    string? Token { get; }
 }

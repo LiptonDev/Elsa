@@ -10,15 +10,15 @@ class GetMeProjection : ElsaMinUser
     /// <summary>
     /// Имя.
     /// </summary>
-    public string FirstName { get; set; }
+    public required string FirstName { get; set; }
 
     /// <summary>
     /// Фамилия.
     /// </summary>
-    public string LastName { get; set; }
+    public required string LastName { get; set; }
 
     /// <summary>
     /// Email.
     /// </summary>
-    public string Email { get; set; }
+    public required string Email { get; set; }
 }

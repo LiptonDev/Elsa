@@ -8,10 +8,10 @@ class ElsaMinUser
     /// <summary>
     /// Id пользователя.
     /// </summary>
-    public string Id { get; set; }
+    public required string Id { get; set; }
 
     /// <summary>
     /// Роли пользователя.
     /// </summary>
-    public ICollection<ElsaMinUserRole> UserRoles { get; set; }
+    public required ICollection<ElsaMinUserRole> UserRoles { get; set; }
 }

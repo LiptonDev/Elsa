@@ -21,9 +21,4 @@ public class ElsaApiKey : Entity<int>
     /// Id пользователя.
     /// </summary>
     public string UserId { get; set; }
-
-    /// <summary>
-    /// Id.
-    /// </summary>
-    public int Id { get; set; }
 }

@@ -23,15 +23,15 @@ public class UpdateUserPasswordCommand : ResetPasswordRequest, IElsaRequestWrapp
 public class UpdateUserPasswordCommandHandler : IElsaRequestHandlerWrapper<UpdateUserPasswordCommand, ResetPasswordResponse>
 {
     private readonly IAccountService accountService;
-    private readonly IDomainEventsService eventsService;
+    private readonly IDomainEventsService publisher;
 
     /// <summary>
     /// Конструктор.
     /// </summary>
-    public UpdateUserPasswordCommandHandler(IAccountService accountService, IDomainEventsService eventsService)
+    public UpdateUserPasswordCommandHandler(IAccountService accountService, IDomainEventsService publisher)
     {
         this.accountService = accountService;
-        this.eventsService = eventsService;
+        this.publisher = publisher;
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public class UpdateUserPasswordCommandHandler : IElsaRequestHandlerWrapper<Updat
         var (userId, res) = await accountService.ResetPasswordAsync(request, !request.IsAdminAction, cancellationToken);
         if (res.Succeeded)
         {
-            await eventsService.PublishAsync(new AccountPasswordChanged(userId));
+            await publisher.PublishAsync(new AccountPasswordChangedEvent(userId!), cancellationToken);
         }
         return new ServiceResult<ResetPasswordResponse>(res);
     }

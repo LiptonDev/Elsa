@@ -24,8 +24,8 @@ public static class LanguageExtension
     /// <param name="app"></param>
     public static void AddElsaLocalization(this IApplicationBuilder app)
     {
-        var defaultLanguage = app.ApplicationServices.GetService<IOptions<LanguageSettings>>().Value.DefaultLanguage;
-        var languages = app.ApplicationServices.GetService<IOptions<List<ElsaLanguage>>>().Value;
+        var defaultLanguage = app.ApplicationServices.GetService<IOptions<LanguageSettings>>()!.Value.DefaultLanguage;
+        var languages = app.ApplicationServices.GetService<IOptions<List<ElsaLanguage>>>()!.Value;
         var langArray = languages.Select(x => new CultureInfo(x.Name)).ToArray();
 
         app.UseRequestLocalization(new RequestLocalizationOptions

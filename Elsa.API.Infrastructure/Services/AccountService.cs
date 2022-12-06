@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
-using Elsa.API.Application.Common.Exceptions;
 using Elsa.API.Application.Common.Interfaces;
 using Elsa.API.Application.Extensions;
 using Elsa.API.Application.UseCases.Account.Commands.Create;
-using Elsa.API.Application.UseCases.Account.Queries;
+using Elsa.API.Application.UseCases.Account.Commands.Delete;
+using Elsa.API.Application.UseCases.Account.Queries.GetToken;
 using Elsa.API.Domain.Entities;
+using Elsa.API.Domain.Settings;
 using Elsa.API.Infrastructure.Projections;
 using Elsa.Core.Enums;
 using Elsa.Core.Models.Account.Request;
@@ -12,7 +13,7 @@ using Elsa.Core.Models.Account.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
-using System.Net;
+using Microsoft.Extensions.Options;
 
 namespace Elsa.API.Infrastructure.Services;
 
@@ -21,34 +22,14 @@ public class AccountService : IAccountService
 {
     #region Localization
     /// <summary>
-    /// Строка локализации, если тип удаления токена передан не правильно.
-    /// </summary>
-    const string RemoveTokenTypeInvalid = nameof(RemoveTokenTypeInvalid);
-
-    /// <summary>
-    /// Строка локализации для отправки токена сброса пароля.
-    /// </summary>
-    const string SendResetPasswordToken = nameof(SendResetPasswordToken);
-
-    /// <summary>
     /// Строка локализации заголовка письма.
     /// </summary>
-    const string ResetPasswordTokenSubject = nameof(ResetPasswordTokenSubject);
+    string ResetPasswordTokenSubject { get; } = nameof(ResetPasswordTokenSubject);
 
     /// <summary>
     /// Строка локализации текста письма.
     /// </summary>
-    const string ResetPasswordTokenBody = nameof(ResetPasswordTokenBody);
-
-    /// <summary>
-    /// Строка локализации при смене пароля.
-    /// </summary>
-    const string ResetPassword = nameof(ResetPassword);
-
-    /// <summary>
-    /// Строка локализации при ошибке смены пароля.
-    /// </summary>
-    const string ResetPasswordError = nameof(ResetPasswordError);
+    string ResetPasswordTokenBody { get; } = nameof(ResetPasswordTokenBody);
     #endregion
 
     private readonly UserManager<ElsaUser> userManager;
@@ -56,6 +37,7 @@ public class AccountService : IAccountService
     private readonly ILookupNormalizer normalizer;
     private readonly ITokenGenerator tokenGenerator;
     private readonly IStringLocalizer<AccountService> localizer;
+    private readonly ResetTokenMailBodySettings settings;
     private readonly IMapper mapper;
 
     public AccountService(UserManager<ElsaUser> userManager,
@@ -63,6 +45,7 @@ public class AccountService : IAccountService
                           ILookupNormalizer normalizer,
                           ITokenGenerator tokenGenerator,
                           IStringLocalizer<AccountService> localizer,
+                          IOptions<ResetTokenMailBodySettings> settings,
                           IMapper mapper)
     {
         this.userManager = userManager;
@@ -70,23 +53,24 @@ public class AccountService : IAccountService
         this.normalizer = normalizer;
         this.tokenGenerator = tokenGenerator;
         this.localizer = localizer;
+        this.settings = settings.Value;
         this.mapper = mapper;
     }
 
-    public Task<bool> CheckEmailAsync(string email)
+    public Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
     {
         email = normalizer.NormalizeEmail(email);
-        return userManager.Users.AnyAsync(x => x.NormalizedEmail == email);
+        return userManager.Users.AnyAsync(x => x.NormalizedEmail == email, cancellationToken);
     }
 
-    public async Task<List<GetMeResponse>> GetUsersInfoAsync(string[] userIds)
+    public async Task<List<GetMeResponse>> GetUsersInfoAsync(string[] userIds, CancellationToken cancellationToken)
     {
-        var users = mapper.ProjectTo<GetMeProjection>(userManager.Users.Include(x => x.UserRoles).ThenInclude(x => x.Role)).AsQueryable().AsNoTracking();
+        var users = mapper.ProjectTo<GetMeProjection>(userManager.Users.AsNoTracking());
         if (userIds is not null && userIds.Length > 0)
         {
             users = users.Where(x => userIds.Contains(x.Id));
         }
-        var res = await users.ToListAsync();
+        var res = await users.ToListAsync(cancellationToken);
         return mapper.Map<List<GetMeResponse>>(res);
     }
 
@@ -103,32 +87,25 @@ public class AccountService : IAccountService
         return new RegisterResponse { Succeeded = res.Succeeded, Errors = res.Errors.ToElsaErrors() };
     }
 
-    public Task<int> RemoveTokenAsync(string userId, string currentToken, RemoveTokenType removeType, CancellationToken cancellationToken)
+    public async Task<string[]> RemoveTokenAsync(LogoutCommand request, CancellationToken cancellationToken)
     {
         var repo = unitOfWork.Repository<ElsaApiKey>();
-        if (removeType == RemoveTokenType.All || removeType == RemoveTokenType.AllExceptCurrent)
+        var tokens = repo.Entities().Where(x => x.UserId == request.UserId);
+        switch (request.RemoveType)
         {
-            var tokens = repo.Entities.AsQueryable();
-            if (removeType == RemoveTokenType.All)
-            {
-                tokens = tokens.Where(x => x.UserId == userId);
-                return tokens.ExecuteDeleteAsync(cancellationToken);
-            }
-            else
-            {
-                tokens = tokens.Where(x => x.UserId == userId && x.Key != currentToken);
-                return tokens.ExecuteDeleteAsync(cancellationToken);
-            }
+            case RemoveTokenType.JustCurrent:
+                tokens = tokens.Where(x => x.Key == request.Token);
+                break;
+            case RemoveTokenType.AllExceptCurrent:
+                tokens = tokens.Where(x => x.Key != request.Token);
+                break;
         }
-        else if (removeType == RemoveTokenType.JustCurrent)
+        var results = await tokens.Select(x => x.Key).ToArrayAsync(cancellationToken);
+        if (results.Length > 0)
         {
-            var token = repo.Entities.Where(x => x.UserId == userId && x.Key == currentToken);
-            return token.ExecuteDeleteAsync(cancellationToken);
+            await tokens.ExecuteDeleteAsync(cancellationToken);
         }
-        else
-        {
-            throw new ElsaApiException(localizer[RemoveTokenTypeInvalid], ErrorCode.Validation, HttpStatusCode.BadRequest);
-        }
+        return results!;
     }
 
     public async Task<(string?, ResetPasswordResponse)> ResetPasswordAsync(ResetPasswordRequest request, bool useRequestToken, CancellationToken cancellationToken)
@@ -136,7 +113,7 @@ public class AccountService : IAccountService
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null)
         {
-            return (null, new ResetPasswordResponse { Message = localizer[ResetPasswordError] });
+            return (null, new ResetPasswordResponse { Succeeded = false });
         }
 
         request.ResetToken = useRequestToken ? request.ResetToken : await userManager.GeneratePasswordResetTokenAsync(user);
@@ -145,21 +122,24 @@ public class AccountService : IAccountService
         return (user.Id, new ResetPasswordResponse
         {
             Succeeded = reset.Succeeded,
-            Message = reset.Succeeded ? localizer[ResetPassword] : localizer[ResetPasswordError],
             Errors = reset.Errors.ToElsaErrors()
         });
     }
 
     public async Task<ResetPasswordGetTokenResponse> SendResetPasswordTokenAsync(string email, CancellationToken cancellationToken)
     {
-        var response = new ResetPasswordGetTokenResponse { Message = localizer[SendResetPasswordToken] };
+        var response = new ResetPasswordGetTokenResponse { Succeeded = true };
         var user = await userManager.FindByEmailAsync(email);
         if (user == null)
             return response;
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+        var body = settings.Body.Replace(ResetTokenMailBodySettings.LocalizeText, localizer[ResetPasswordTokenBody])
+                                .Replace(ResetTokenMailBodySettings.TokenText, token);
+
         await unitOfWork.Repository<EmailEntity>().AddAsync(new EmailEntity
         {
-            Body = string.Format(localizer[ResetPasswordTokenBody], token),
+            Body = body,
             To = user.Email!,
             Subject = localizer[ResetPasswordTokenSubject]
         }, cancellationToken);
@@ -177,7 +157,7 @@ public class AccountService : IAccountService
         if (!check)
             return null;
 
-        var key = await tokenGenerator.GenerateTokenAsync();
+        var key = await tokenGenerator.GenerateTokenAsync(cancellationToken);
         var apiKey = new ElsaApiKey { Key = key, User = user };
         await unitOfWork.Repository<ElsaApiKey>().AddAsync(apiKey, cancellationToken);
         await unitOfWork.Commit(cancellationToken);

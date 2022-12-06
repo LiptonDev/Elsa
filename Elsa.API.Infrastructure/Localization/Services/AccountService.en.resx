@@ -117,22 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="RemoveTokenTypeInvalid" xml:space="preserve">
-    <value>Remove token type is invalid</value>
-  </data>
-  <data name="SendResetPasswordToken" xml:space="preserve">
-    <value>Password reset token sent to your email</value>
-  </data>
   <data name="ResetPasswordTokenSubject" xml:space="preserve">
     <value>Password reset token</value>
   </data>
   <data name="ResetPasswordTokenBody" xml:space="preserve">
-    <value>Your password reset token: &lt;b&gt;{0}&lt;/b&gt;</value>
-  </data>
-  <data name="ResetPassword" xml:space="preserve">
-    <value>Password was changed</value>
-  </data>
-  <data name="ResetPasswordError" xml:space="preserve">
-    <value>Password change error</value>
+    <value>Your password reset token</value>
   </data>
 </root>

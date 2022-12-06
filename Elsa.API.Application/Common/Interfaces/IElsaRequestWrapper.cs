@@ -1,5 +1,4 @@
 ﻿using Elsa.API.Application.Common.Models;
-using Elsa.Core.Models.Response;
 using MediatR;
 
 namespace Elsa.API.Application.Common.Interfaces;

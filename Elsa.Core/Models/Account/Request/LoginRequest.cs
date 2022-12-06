@@ -8,10 +8,10 @@ public class LoginRequest
     /// <summary>
     /// Почта.
     /// </summary>
-    public string Email { get; set; }
+    public required string Email { get; set; }
 
     /// <summary>
     /// Пароль.
     /// </summary>
-    public string Password { get; set; }
+    public required string Password { get; set; }
 }

@@ -12,5 +12,5 @@ public interface IDomainEventsService
     /// </summary>
     /// <param name="domainEvent">Событие.</param>
     /// <returns></returns>
-    Task PublishAsync(DomainEvent domainEvent);
+    Task PublishAsync(DomainEvent domainEvent, CancellationToken cancellationToken);
 }

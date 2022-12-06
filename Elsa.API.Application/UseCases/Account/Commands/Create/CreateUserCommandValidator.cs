@@ -42,8 +42,8 @@ public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
     /// </summary>
     /// <param name="email">Почта.</param>
     /// <returns><see cref="bool">true</see> если почта НЕ используется</returns>
-    async Task<bool> CheckEmailInDb(string email, CancellationToken _)
+    async Task<bool> CheckEmailInDb(string email, CancellationToken token)
     {
-        return !await accountService.CheckEmailAsync(email);
+        return !await accountService.CheckEmailAsync(email, token);
     }
 }

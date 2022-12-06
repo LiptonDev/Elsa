@@ -1,5 +1,7 @@
-﻿using Elsa.API.Application.Common.Exceptions;
-using Elsa.API.Application.Common.Models;
+﻿using Elsa.API.Application.Common.Models;
+using Elsa.Core.Enums;
+using Elsa.Core.Models.Errors;
+using Elsa.Core.Models.Response;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -8,20 +10,32 @@ using Microsoft.Extensions.Localization;
 namespace Elsa.API.Application.Common.Behaviours;
 
 /// <summary>
+/// Локализация для <see cref="ValidationBehaviour{TRequest, TResponse}"/>.
+/// </summary>
+public class ValidationBehaviourLocalization
+{
+    /// <summary>
+    /// Локализация ошибки валидации.
+    /// </summary>
+    public const string InvalidRequest = nameof(InvalidRequest);
+}
+
+/// <summary>
 /// MediatR pipline.
 /// </summary>
 public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
+    where TResponse : class, IServiceResult, new()
 {
     private readonly IEnumerable<IValidator<TRequest>> validators;
-    private readonly IStringLocalizer<ExceptionStrings> localizer;
+    private readonly IStringLocalizer<ValidationBehaviourLocalization> localizer;
     private readonly IHttpContextAccessor httpContextAccessor;
 
     /// <summary>
     /// Конструктор.
     /// </summary>
     public ValidationBehaviour(IEnumerable<IValidator<TRequest>> validators,
-                               IStringLocalizer<ExceptionStrings> localizer,
+                               IStringLocalizer<ValidationBehaviourLocalization> localizer,
                                IHttpContextAccessor httpContextAccessor)
     {
         this.validators = validators;
@@ -45,16 +59,17 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
             var fails = result.SelectMany(x => x.Errors).Where(x => x != null);
             if (fails.Any())
             {
-                throw new ElsaValidationException(localizer[ExceptionStrings.ValidationFailures], fails);
+                var errors = fails.GroupBy(x => x.PropertyName, x => x.ErrorMessage);
+                var details = new ElsaError(localizer[ValidationBehaviourLocalization.InvalidRequest], ErrorCode.Validation, new ElsaValidationErrors(errors));
+                var response = new TResponse { Error = details };
+                httpContextAccessor.HttpContext.Response.StatusCode = 400; //bad request
+                return response;
             }
         }
 
         var res = await next();
 
-        if (res is IStatus status)
-        {
-            httpContextAccessor.HttpContext.Response.StatusCode = (int)status.StatusCode;
-        }
+        httpContextAccessor.HttpContext.Response.StatusCode = (int)res.StatusCode;
 
         return res;
     }

@@ -15,5 +15,7 @@ public static class ConfigureExtensions
         services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
         services.Configure<RegexSettings>(configuration.GetSection("RegexSettings"));
         services.Configure<List<ElsaLanguage>>(configuration.GetSection("Languages"));
+        services.Configure<DefaultAdminUser>(configuration.GetSection("DefaultAdminUser"));
+        services.Configure<ResetTokenMailBodySettings>(configuration.GetSection("ResetTokenBody"));
     }
 }

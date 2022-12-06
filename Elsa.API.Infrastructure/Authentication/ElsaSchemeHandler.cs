@@ -6,21 +6,34 @@ using Elsa.API.Infrastructure.Projections.MinUser;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Elsa.API.Infrastructure.Authentication;
+
+/// <summary>
+/// Thx Microsoft :)
+/// </summary>
+file class MyClaim : Claim
+{
+    public MyClaim(string type, string value, string valueType, string issuer, string originalIssuer) :
+        base(type, value, valueType, issuer, originalIssuer)
+    { }
+}
 
 /// <summary>
 /// Обработчик авторизации.
 /// </summary>
 public class ElsaSchemeHandler : AuthenticationHandler<ElsaSchemeOptions>
 {
-    private readonly UserManager<ElsaUser> userManager;
     private readonly ElsaDbContext dbContext;
+    private readonly IDistributedCache redisCache;
     private readonly IMapper mapper;
     static readonly Regex tokenRegex = new(ElsaSchemeConsts.RegexPattern, RegexOptions.Compiled);
 
@@ -31,12 +44,12 @@ public class ElsaSchemeHandler : AuthenticationHandler<ElsaSchemeOptions>
                              ILoggerFactory logger,
                              UrlEncoder encoder,
                              ISystemClock clock,
-                             UserManager<ElsaUser> userManager,
                              ElsaDbContext dbContext,
+                             IDistributedCache redisCache,
                              IMapper mapper) : base(options, logger, encoder, clock)
     {
-        this.userManager = userManager;
         this.dbContext = dbContext;
+        this.redisCache = redisCache;
         this.mapper = mapper;
     }
 
@@ -88,24 +101,39 @@ public class ElsaSchemeHandler : AuthenticationHandler<ElsaSchemeOptions>
                 return AuthenticateResult.NoResult();
             }
 
-            var key = await mapper.ProjectTo<ElsaMinApiKey>(dbContext.ApiKeys.AsNoTracking()).FirstOrDefaultAsync(x => x.Key == headerKey);
-
-            if (key == null)
+            var redisKey = await redisCache.GetStringAsync($"{ElsaSchemeConsts.SchemeBearer}={headerKey}");
+            if (redisKey is not null)
             {
-                return AuthenticateResult.Fail("Key not found");
+                var parse = JsonSerializer.Deserialize<IEnumerable<MyClaim>>(redisKey);
+                var claimsIdentity = new ClaimsIdentity(parse, nameof(ElsaSchemeHandler));
+                var ticket = new AuthenticationTicket(new ClaimsPrincipal(claimsIdentity), Scheme.Name);
+                return AuthenticateResult.Success(ticket);
             }
-
-            var res = await mapper.ProjectTo<ElsaMinUser>(userManager.Users.AsNoTracking()).FirstOrDefaultAsync(x => x.Id == key.UserId);
-
-            if (res == null)
+            else
             {
-                return AuthenticateResult.Fail("User not found");
-            }
+                var key = await mapper.ProjectTo<ElsaMinApiKey>(dbContext.ApiKeys.AsNoTracking()).FirstOrDefaultAsync(x => x.Key == headerKey);
 
-            var claims = GetClaims(res);
-            var claimsIdentity = new ClaimsIdentity(claims, nameof(ElsaSchemeHandler));
-            var ticket = new AuthenticationTicket(new ClaimsPrincipal(claimsIdentity), Scheme.Name);
-            return AuthenticateResult.Success(ticket);
+                if (key == null)
+                {
+                    return AuthenticateResult.Fail("Key not found");
+                }
+
+                var res = await mapper.ProjectTo<ElsaMinUser>(dbContext.Users.AsNoTracking()).FirstOrDefaultAsync(x => x.Id == key.UserId);
+
+                if (res == null)
+                {
+                    return AuthenticateResult.Fail("User not found");
+                }
+
+                var claims = GetClaims(res);
+                var claimsIdentity = new ClaimsIdentity(claims, nameof(ElsaSchemeHandler));
+                var ticket = new AuthenticationTicket(new ClaimsPrincipal(claimsIdentity), Scheme.Name);
+
+                var json = JsonSerializer.Serialize(claims);
+                await redisCache.SetStringAsync($"{ElsaSchemeConsts.SchemeBearer}={headerKey}", json);
+
+                return AuthenticateResult.Success(ticket);
+            }
         }
         catch (Exception ex)
         {
@@ -116,11 +144,9 @@ public class ElsaSchemeHandler : AuthenticationHandler<ElsaSchemeOptions>
     /// <summary>
     /// Получить список всех доступов для пользователя.
     /// </summary>
-    private static List<Claim> GetClaims(ElsaMinUser user)
+    private static IEnumerable<Claim> GetClaims(ElsaMinUser user)
     {
-        var claims = new List<Claim> { new(ClaimTypes.NameIdentifier, user.Id) };
-        claims.AddRange(user.UserRoles.Select(x => new Claim(ClaimTypes.Role, x.Role.Name)));
-        return claims;
+        return user.UserRoles.Select(x => new Claim(ClaimTypes.Role, x.Role.Name)).Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
     }
 }
 
@@ -132,10 +158,10 @@ class ElsaMinApiKey
     /// <summary>
     /// Id пользователя.
     /// </summary>
-    public string UserId { get; set; }
+    public required string UserId { get; set; }
 
     /// <summary>
     /// Ключ.
     /// </summary>
-    public string Key { get; set; }
+    public required string Key { get; set; }
 }

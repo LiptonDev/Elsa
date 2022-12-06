@@ -10,14 +10,14 @@ public interface IAsyncRepository<T, in TId> where T : class, IEntity<TId>
     /// <summary>
     /// Сущности.
     /// </summary>
-    IQueryable<T> Entities { get; }
+    IQueryable<T> Entities(bool tracking = false);
 
     /// <summary>
     /// Получить сущность по Id.
     /// </summary>
     /// <param name="id">Id.</param>
     /// <returns></returns>
-    Task<T> GetByIdAsync(TId id);
+    Task<T?> GetByIdAsync(TId id);
 
     /// <summary>
     /// Получить все сущности.

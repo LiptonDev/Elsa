@@ -13,11 +13,11 @@ public class EmailEntityConfiguration : IEntityTypeConfiguration<EmailEntity>
     /// Конфигурация.
     /// </summary>
     /// <param name="builder"></param>
-    /// <exception cref="NotImplementedException"></exception>
     public void Configure(EntityTypeBuilder<EmailEntity> builder)
     {
         builder.ToTable("mails");
         builder.Ignore(x => x.ToAsEnumerable);
-        builder.HasQueryFilter(x => !x.IsDeleted && x.Fails < 3);
+        builder.Ignore(x => x.Fail);
+        builder.HasQueryFilter(x => x.Fails < 3 && !x.Sended);
     }
 }

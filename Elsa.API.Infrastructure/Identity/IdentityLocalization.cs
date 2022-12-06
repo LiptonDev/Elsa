@@ -73,7 +73,7 @@ class IdentityLocalization : IdentityErrorDescriber
     /// </summary>
     /// <param name="userName"></param>
     /// <returns></returns>
-    public override IdentityError InvalidUserName(string userName) =>
+    public override IdentityError InvalidUserName(string? userName) =>
         new() { Code = nameof(InvalidUserName), Description = string.Format(localizer[nameof(InvalidUserName)], userName) };
 
     /// <summary>
@@ -81,7 +81,7 @@ class IdentityLocalization : IdentityErrorDescriber
     /// </summary>
     /// <param name="email"></param>
     /// <returns></returns>
-    public override IdentityError InvalidEmail(string email) =>
+    public override IdentityError InvalidEmail(string? email) =>
         new() { Code = nameof(InvalidEmail), Description = string.Format(localizer[nameof(InvalidEmail)], email) };
 
     /// <summary>
@@ -105,7 +105,7 @@ class IdentityLocalization : IdentityErrorDescriber
     /// </summary>
     /// <param name="role"></param>
     /// <returns></returns>
-    public override IdentityError InvalidRoleName(string role) =>
+    public override IdentityError InvalidRoleName(string? role) =>
         new() { Code = nameof(InvalidRoleName), Description = string.Format(localizer[nameof(InvalidUserName)], role) };
 
     /// <summary>

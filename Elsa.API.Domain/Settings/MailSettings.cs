@@ -34,4 +34,9 @@ public class MailSettings
     /// Отображаемое имя отправителя.
     /// </summary>
     public string DisplayName { get; set; }
+
+    /// <summary>
+    /// Use Ssl.
+    /// </summary>
+    public bool UseSsl { get; set; }
 }

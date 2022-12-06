@@ -18,13 +18,13 @@ public class DomainEventsService : IDomainEventsService
         this.publisher = publisher;
     }
 
-    public Task PublishAsync(DomainEvent domainEvent)
+    public Task PublishAsync(DomainEvent domainEvent, CancellationToken cancellationToken)
     {
-        return publisher.Publish(GetNotification(domainEvent));
+        return publisher.Publish(GetNotification(domainEvent), cancellationToken);
     }
 
     private INotification GetNotification(DomainEvent domainEvent)
     {
-        return (INotification)Activator.CreateInstance(typeof(DomainEventNotification<>).MakeGenericType(domainEvent.GetType()), domainEvent);
+        return (INotification)Activator.CreateInstance(typeof(DomainEventNotification<>).MakeGenericType(domainEvent.GetType()), domainEvent)!;
     }
 }
