@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /Elsa.API/elsa.db-shm
 /Elsa.API/elsa.db-wal
 /Elsa.API/elsa.db
+/Elsa.Client.Console/Elsa.Client.Console.csproj
